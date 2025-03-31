@@ -24,11 +24,15 @@ const (
 	kConfigLabel 	= "CONFIG_LABLE"
 	kConfigProfile 	= "CONFIG_PROFILE"
 	kConfigType 	= "CONFIG_TYPE"
+	kAmqpURI       = "AmqpURI"
 )
 
 func init() {
 	viper.AutomaticEnv()	// 通过环境变量修改任意配置
 	initDefault()			// 初始化 viper 配置
+
+	// 开启监听
+	go StartListener(viper.GetString(kAppName), viper.GetString(kAmqpURI), "springCloudBus")
 
 	// 读取yaml
 	if err := loadRemoteConfig(); err != nil {
@@ -47,6 +51,8 @@ func initDefault() {
 	viper.SetDefault(kConfigLabel, "master")						// 分支
 	viper.SetDefault(kConfigProfile, "dev")						// 环境
 	viper.SetDefault(kConfigType, "yaml")						// 配置文件格式
+
+	viper.SetDefault(kAmqpURI, "amqp://guest:guest@localhost:5672")	// RabbitMQ 地址
 }
 
 func loadRemoteConfig() (err error) {
